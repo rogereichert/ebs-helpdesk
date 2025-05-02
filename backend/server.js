@@ -27,6 +27,11 @@ app.get('/', (req, res) => {
     res.send('API de chamados iniciada com sucesso')
 })
 
+const grupoRoutes = require('./routes/grupoRoutes')
+
+// USAR rotas com prefixo /api
+app.use('/api', grupoRoutes)
+
 // Porta inicial do servidor
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
