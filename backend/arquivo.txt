@@ -84,3 +84,124 @@ app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
 
+OBS 1: instalar nodemon
+a) npm install -D nodemon
+b) editar o script packpage:
+    "scripts": {
+  "dev": "nodemon server.js"
+}
+
+
+
+---- 
+8 - Criação arquivos grupo.js
+backend/
+├── controllers/
+│   └── grupoController.js
+├── models/
+│   └── grupoModel.js
+├── routes/
+│   └── grupoRoutes.js
+
+
+8.1 models/grupoModel.js
+// models/grupoModel.js
+
+const db = require('../config/db');
+
+/**
+ * GrupoModel
+ * Responsável por executar queries relacionadas à tabela `grupos`.
+ */
+const GrupoModel = {
+  /**
+   * Cria um novo grupo
+   * @param {Object} grupo - Objeto com nome e descrição
+   * @returns Promise
+   */
+  criarGrupo: (grupo) => {
+    const { nome, descricao } = grupo;
+    const sql = 'INSERT INTO grupos (nome, descricao) VALUES (?, ?)';
+    return db.promise().execute(sql, [nome, descricao]);
+  },
+
+  /**
+   * Lista todos os grupos cadastrados
+   * @returns Promise
+   */
+  listarGrupos: () => {
+    const sql = 'SELECT * FROM grupos ORDER BY nome ASC';
+    return db.promise().query(sql);
+  }
+};
+
+module.exports = GrupoModel;
+
+---------------
+
+8.2 controllers/grupoController.js
+
+// controllers/grupoController.js
+
+const GrupoModel = require('../models/grupoModel');
+
+/**
+ * GrupoController
+ * Lida com a lógica de negócios e responde as requisições relacionadas a grupos.
+ */
+const GrupoController = {
+  // POST /api/grupos
+  async criar(req, res) {
+    try {
+      const { nome, descricao } = req.body;
+
+      // Validação simples
+      if (!nome) {
+        return res.status(400).json({ erro: 'O nome do grupo é obrigatório.' });
+      }
+
+      // Chama o model para inserir no banco
+      await GrupoModel.criarGrupo({ nome, descricao });
+
+      return res.status(201).json({ mensagem: 'Grupo criado com sucesso!' });
+    } catch (error) {
+      console.error('Erro ao criar grupo:', error);
+      return res.status(500).json({ erro: 'Erro ao criar grupo.' });
+    }
+  },
+
+  // GET /api/grupos
+  async listar(req, res) {
+    try {
+      const [grupos] = await GrupoModel.listarGrupos();
+      return res.status(200).json(grupos);
+    } catch (error) {
+      console.error('Erro ao listar grupos:', error);
+      return res.status(500).json({ erro: 'Erro ao listar grupos.' });
+    }
+  }
+};
+
+module.exports = GrupoController;
+
+-------------------
+
+8.3 - routes/grupoRoutes.js
+
+// routes/grupoRoutes.js
+
+const express = require('express');
+const router = express.Router();
+const GrupoController = require('../controllers/grupoController');
+
+/**
+ * Rotas para gerenciamento de grupos.
+ * POST: Cria um novo grupo.
+ * GET: Lista todos os grupos existentes.
+ */
+
+router.post('/grupos', GrupoController.criar);  // POST /api/grupos
+router.get('/grupos', GrupoController.listar);  // GET /api/grupos
+
+module.exports = router;
+
