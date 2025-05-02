@@ -1,0 +1,24 @@
+1 - estrutura base:
+project-root/
+│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── server.js
+│
+└── database/
+    └── schema.sql
+
+2 - instalação no terminal
+npm init -y
+npm install express mysql2 jsonwebtoken bcryptjs dotenv cors
+
+3 - Login – Começo com AuthController e rota
+- Cadastro de usuário (admin inicial).
+- Login com validação.
+- Geração de token JWT.
+- Middleware de proteção.
